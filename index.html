@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复利计算器 - 财富增长预测工具 | 投资理财必备</title>
+    <meta name="description" content="免费好用的在线复利计算器。通过复利公式预测你的定投收益，支持本金、每月定投、年化收益率计算，并附带直观的财富增长图表。">
+    
+    <!-- Tailwind CSS 引入，用于页面美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js 引入，用于绘制财富增长折线图 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- 🟢 你的 Google AdSense 自动广告代码 🟢 -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4790222035054778" crossorigin="anonymous"></script>
+
+    <style>
+        /* 自定义一些平滑过渡效果 */
+        input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+        .content-article h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .content-article p {
+            margin-bottom: 1rem;
+            line-height: 1.75;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <svg class="h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold text-gray-900">智能复利计算器</span>
+                </div>
+                <div class="text-sm text-gray-500 hover:text-indigo-600 cursor-pointer transition-colors">
+                    更多理财工具
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 核心计算器区域 -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                预测你的财富未来
+            </h1>
+            <p class="mt-4 text-lg text-gray-500">
+                输入你的本金、定投金额和预期收益率，见证时间与复利的魔力。
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- 左侧：输入表单 -->
+            <div class="lg:col-span-4 bg-white rounded-2xl shadow-lg p-6 border border-gray-100 h-fit">
+                <form id="calculator-form" class="space-y-6">
+                    <div>
+                        <label for="principal" class="block text-sm font-medium text-gray-700">初始投资本金 (元)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="number" id="principal" value="10000" min="0" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="monthly-addition" class="block text-sm font-medium text-gray-700">每月定投金额 (元)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="number" id="monthly-addition" value="2000" min="0" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="years" class="block text-sm font-medium text-gray-700">投资年限 (年)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="number" id="years" value="10" min="1" max="100" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="rate" class="block text-sm font-medium text-gray-700">预期年化收益率 (%)</label>
+                        <div class="mt-1 relative rounded-md shadow-sm">
+                            <input type="number" id="rate" value="8" min="0" max="100" step="0.1" class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 bg-gray-50">
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="calculate()" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        开始计算
+                    </button>
+                </form>
+            </div>
+
+            <!-- 右侧：结果展示与图表 -->
+            <div class="lg:col-span-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-100 flex flex-col">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">计算结果摘要</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-100">
+                        <p class="text-sm font-medium text-indigo-600 mb-1">最终总资产 (本金+利息)</p>
+                        <p class="text-2xl font-bold text-gray-900" id="result-total">¥0.00</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                        <p class="text-sm font-medium text-blue-600 mb-1">总投入本金</p>
+                        <p class="text-xl font-bold text-gray-900" id="result-principal">¥0.00</p>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-4 border border-green-100">
+                        <p class="text-sm font-medium text-green-600 mb-1">复利总收益</p>
+                        <p class="text-xl font-bold text-gray-900" id="result-interest">¥0.00</p>
+                    </div>
+                </div>
+
+                <div class="flex-grow w-full h-64 relative">
+                    <canvas id="growthChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEO长文区域 (极其关键：用于通过 AdSense "高质量内容" 审核) -->
+        <article class="mt-16 bg-white rounded-2xl shadow-sm p-8 border border-gray-200 content-article">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">深入理解复利：时间如何成为你最强大的盟友</h1>
+            
+            <h2>什么是复利 (Compound Interest)？</h2>
+            <p>在金融与投资领域，复利（Compound Interest）被称为“世界第八大奇迹”。与单利只对本金计算利息不同，复利的核心理念是<strong>“利滚利”</strong>。这意味着你不仅能够从你最初投入的本金中获得收益，还能从之前累积的利息中获得新的利息。随着时间的推移，这种指数级的增长方式会产生令人震惊的财富积累效应。</p>
+            <p>举个简单的例子：如果你投资 10,000 元，年利率为 10%。第一年你赚取 1,000 元利息，总资金变为 11,000 元。如果是单利，第二年你依然只赚 1,000 元；但如果是复利，第二年你的本金变成了 11,000 元，因此你能赚取 1,100 元的利息。时间越长，这种差距就越明显。</p>
+
+            <h2>复利的计算公式</h2>
+            <p>标准的复利计算公式为：<strong>A = P(1 + r/n)^(nt)</strong></p>
+            <ul class="list-disc list-inside mb-4 text-gray-600 space-y-2">
+                <li><strong>A (Amount)</strong>：最终累积的总资产（本金 + 利息）。</li>
+                <li><strong>P (Principal)</strong>：初始投资本金。</li>
+                <li><strong>r (Rate)</strong>：名义年化收益率（以小数表示，如 8% 即 0.08）。</li>
+                <li><strong>n (Number of times)</strong>：每年计算复利的次数（如按月复利，n=12）。</li>
+                <li><strong>t (Time)</strong>：投资总年限。</li>
+            </ul>
+            <p>为了更贴合普通人的投资习惯，我们的<strong>在线复利计算器</strong>不仅内置了上述基础公式，还特别加入了“每月定投 (PMT)”的计算逻辑。因为对于大多数工薪阶层而言，一次性拿出一大笔钱并不现实，坚持每个月从工资中拿出一部分进行定投，才是更稳妥且容易实现的财富增长路径。</p>
+
+            <h2>为什么你需要尽早开始理财？（时间的力量）</h2>
+            <p>在复利的公式中，影响最终结果的三个核心变量是：本金、收益率和时间。其中，<strong>时间 (t) 作为指数存在，是影响最为深远的因素。</strong></p>
+            <p>假设两位投资者：小明在 25 岁开始每个月投资 2000 元，持续 10 年后（35岁）停止投入，任其自然复利直到 60 岁；小红在 35 岁才开始每个月投资 2000 元，一直持续投入到 60 岁（长达 25 年）。假设年化收益率同为 8%。令人惊讶的是，最终 60 岁时，投入本金更少、停止投入更早的小明，其最终资产往往会高于小红。这就是复利中“时间壁垒”的威力。你越早开始，钱为你工作的时间就越长。</p>
+
+            <h2>如何使用本站的复利计算器？</h2>
+            <p>我们的计算器设计得非常直观易用：</p>
+            <ol class="list-decimal list-inside mb-4 text-gray-600 space-y-2">
+                <li><strong>初始投资本金：</strong> 输入你目前可以一次性投入的资金（如果没有，可以填 0）。</li>
+                <li><strong>每月定投金额：</strong> 输入你计划每个月固定追加投资的金额。</li>
+                <li><strong>投资年限：</strong> 你计划将这笔钱持续投资多少年？建议规划 5 年以上的长期投资。</li>
+                <li><strong>预期年化收益率：</strong> 根据你选择的投资标的填写。通常，银行定存约 2-3%，稳健型理财约 4-5%，宽基指数基金（如沪深300、标普500）长期平均收益率约在 7-10% 左右。请注意，高收益永远伴随高风险。</li>
+            </ol>
+            <p>点击“开始计算”后，系统会自动生成直观的财富增长折线图。你可以清晰地看到代表“总投入本金”的平缓直线，与代表“最终总资产”的向上弯曲的指数曲线，它们之间的巨大差额，就是复利为你带来的财富增量。</p>
+
+            <h2>投资免责声明与建议</h2>
+            <p class="text-sm text-gray-500 bg-gray-50 p-4 rounded-lg"><em>声明：本计算器提供的计算结果仅供预测和参考，不构成任何具体的投资建议。真实的金融市场充满波动，历史收益不代表未来表现。投资有风险，入市需谨慎。建议投资者在进行实际操作前，充分评估自身的风险承受能力，并咨询专业的理财顾问。</em></p>
+        </article>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            <p>&copy; 2024 智能复利计算器. 保留所有权利. | 打造您的专属财富增长工具箱</p>
+        </div>
+    </footer>
+
+    <!-- 计算器逻辑与图表渲染脚本 -->
+    <script>
+        let myChart = null; // 全局变量保存图表实例
+
+        // 格式化货币显示
+        function formatCurrency(num) {
+            return '¥ ' + num.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calculate() {
+            // 获取用户输入
+            const principal = parseFloat(document.getElementById('principal').value) || 0;
+            const monthlyAddition = parseFloat(document.getElementById('monthly-addition').value) || 0;
+            const years = parseInt(document.getElementById('years').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) || 0;
+
+            if (years <= 0) {
+                alert("投资年限必须大于0");
+                return;
+            }
+
+            // 月利率
+            const monthlyRate = (rate / 100) / 12;
+            const totalMonths = years * 12;
+
+            let currentBalance = principal;
+            let totalInvested = principal;
+            
+            // 图表数据数组
+            let labels = [];
+            let balanceData = [];
+            let investedData = [];
+
+            // 初始0年数据（起点）
+            labels.push('初始');
+            balanceData.push(principal);
+            investedData.push(principal);
+
+            // 按月循环计算复利
+            for (let m = 1; m <= totalMonths; m++) {
+                // 每月初投入
+                currentBalance += monthlyAddition;
+                totalInvested += monthlyAddition;
+                // 月底结算利息
+                currentBalance = currentBalance * (1 + monthlyRate);
+
+                // 每年年底记录一次数据用于画图 (m是12的倍数)
+                if (m % 12 === 0) {
+                    labels.push('第 ' + (m / 12) + ' 年');
+                    balanceData.push(Math.round(currentBalance));
+                    investedData.push(Math.round(totalInvested));
+                }
+            }
+
+            const totalInterest = currentBalance - totalInvested;
+
+            // 更新DOM数字显示
+            document.getElementById('result-total').innerText = formatCurrency(currentBalance);
+            document.getElementById('result-principal').innerText = formatCurrency(totalInvested);
+            document.getElementById('result-interest').innerText = formatCurrency(totalInterest);
+
+            // 渲染图表
+            renderChart(labels, balanceData, investedData);
+        }
+
+        function renderChart(labels, balanceData, investedData) {
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            
+            // 如果图表已存在，先销毁旧图表再重绘
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '总投入本金',
+                            data: investedData,
+                            borderColor: '#3b82f6', // blue-500
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: '最终总资产 (本金+利息)',
+                            data: balanceData,
+                            borderColor: '#4f46e5', // indigo-600
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4 // 使曲线更平滑
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += '¥' + context.parsed.y.toLocaleString('zh-CN');
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    // 简化Y轴数字显示 (例如 10000 -> 1万)
+                                    if(value >= 10000) {
+                                        return '¥' + (value/10000) + '万';
+                                    }
+                                    return '¥' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 页面加载完成后自动计算一次默认值
+        window.onload = function() {
+            calculate();
+        };
+    </script>
+</body>
+</html>
